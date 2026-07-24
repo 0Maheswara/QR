@@ -227,16 +227,18 @@ async function downloadPDF() {
 
     const pdf = new jsPDF("p", "mm", "a4");
 
-    const labelsPerPage = 10;
+    const cols = 4;
+    const rowsPerPage = 8;
 
-    const qrSize = 35;
+    const labelsPerPage = cols * rowsPerPage;
 
-    const startX = 15;
-    const startY = 15;
+    const qrSize = 22;
 
-    const colGap = 75;
-    const rowGap = 52;
+    const startX = 8;
+    const startY = 8;
 
+    const colGap = 48;
+    const rowGap = 35;
     let label = 0;
 
     for (let i = 0; i < rows.length; i++) {
@@ -253,8 +255,8 @@ async function downloadPDF() {
 
         const img = canvas.toDataURL("image/png");
 
-        const col = label % 2;
-        const row = Math.floor(label / 2);
+        const col = label % cols;
+        const row = Math.floor(label / cols);
 
         const x = startX + col * colGap;
         const y = startY + row * rowGap;
