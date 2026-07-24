@@ -1,0 +1,51 @@
+
+<!DOCTYPE html><html><head><meta charset="utf-8">
+<title>Warehouse Bulk QR Generator</title>
+<style>
+body{font-family:Arial;margin:20px;background:#f4f6f8}
+textarea{width:100%;height:140px}
+table{border-collapse:collapse;width:100%;margin-top:15px}
+td,th{border:1px solid #ccc;padding:6px;text-align:center}
+input[type=text]{width:100%}
+canvas{width:100px;height:100px}
+button{margin:5px;padding:10px}
+</style></head><body>
+<h2>Warehouse Bulk QR Generator</h2>
+<p>Paste one number per line.</p>
+<textarea id="nums"></textarea><br>
+<button onclick="build()">Generate Preview</button>
+<button onclick="downloadZip()">Download ZIP</button>
+<div id="tbl"></div>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+let rows=[];
+function today(){let d=new Date();return String(d.getDate()).padStart(2,'0')+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+d.getFullYear();}
+function build(){
+ rows=[];let t='<table><tr><th>#</th><th>Number</th><th>Edit QR Text</th><th>QR</th></tr>';
+ document.getElementById('tbl').innerHTML='';
+ let arr=document.getElementById('nums').value.split(/\n/).map(x=>x.trim()).filter(Boolean).slice(0,100);
+ arr.forEach((n,i)=>{
+ let txt='b_'+n+'_'+today();
+ t+=`<tr><td>${i+1}</td><td>${n}</td><td><input value="${txt}" oninput="upd(${i},this.value)"></td><td><div id="q${i}"></div></td></tr>`;
+ rows.push({text:txt});
+ });
+ t+='</table>';document.getElementById('tbl').innerHTML=t;
+ rows.forEach((r,i)=>draw(i,r.text));
+}
+function draw(i,txt){
+ let d=document.getElementById('q'+i);d.innerHTML='';
+ new QRCode(d,{text:txt,width:100,height:100});
+}
+function upd(i,v){rows[i].text=v;draw(i,v);}
+async function downloadZip(){
+ if(!rows.length){alert('Generate first');return;}
+ const zip=new JSZip();
+ for(let i=0;i<rows.length;i++){
+   let c=document.querySelector('#q'+i+' canvas');
+   zip.file(rows[i].text+'.png',c.toDataURL().split(',')[1],{base64:true});
+ }
+ const blob=await zip.generateAsync({type:'blob'});
+ const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Warehouse_QRs.zip';a.click();
+}
+</script></body></html>
