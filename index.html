@@ -1,130 +1,73 @@
 <!DOCTYPE html>
-
 <html>
-
 <head>
-
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Warehouse QR Generator</title>
-
 <style>
-
 body {
-
     font-family: Arial, sans-serif;
-
     background: #f2f4f8;
-
     display: flex;
-
     justify-content: center;
-
     align-items: center;
-
     height: 100vh;
-
     margin: 0;
-
 }
-
+    
 .container {
-
     background: white;
-
     padding: 25px;
-
     border-radius: 14px;
-
     box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-
     width: 90%;
-
     max-width: 400px;
-
     text-align: center;
-
 }
 
 input {
-
     width: 100%;
-
     padding: 12px;
-
     margin-top: 15px;
-
     font-size: 16px;
-
     border-radius: 8px;
-
     border: 1px solid #ccc;
-
     text-align: center;
-
 }
 
 button {
-
     width: 100%;
-
     padding: 12px;
-
     margin-top: 18px;
-
     font-size: 16px;
-
     border-radius: 8px;
-
     border: none;
-
     background-color: #2563eb;
-
     color: white;
-
     cursor: pointer;
-
 }
 
 button:hover {
-
     background-color: #1e4fd8;
-
 }
 
 #qrcode {
-
     margin-top: 20px;
-
 }
 
 .error {
-
     color: red;
-
     margin-top: 10px;
-
     font-size: 14px;
-
 }
 
 </style>
-
 </head>
-
 <body>
 
-
-
 <div class="container">
-
 <h2>QR Code Generator</h2>
-
 <p>Enter: AISLE RACK BIN (space separated)</p>
-
-
 
 <input type="text"
        id="combinedInput"
