@@ -15,9 +15,11 @@ button{margin:5px;padding:10px}
 <textarea id="nums"></textarea><br>
 <button onclick="build()">Generate Preview</button>
 <button onclick="downloadZip()">Download ZIP</button>
+<button onclick="downloadPDF()">Download PDF</button>
 <div id="tbl"></div>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 let rows=[];
 function today(){let d=new Date();return String(d.getDate()).padStart(2,'0')+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+d.getFullYear();}
@@ -47,5 +49,52 @@ async function downloadZip(){
  }
  const blob=await zip.generateAsync({type:'blob'});
  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Warehouse_QRs.zip';a.click();
+}
+ async function downloadPDF() {
+    if (!rows.length) {
+        alert("Generate first");
+        return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF("p", "mm", "a4");
+
+    const labelsPerPage = 10;
+    const qrSize = 35;
+
+    const startX = 15;
+    const startY = 15;
+
+    const colGap = 75;
+    const rowGap = 52;
+
+    let label = 0;
+
+    for (let i = 0; i < rows.length; i++) {
+
+        if (label === labelsPerPage) {
+            pdf.addPage();
+            label = 0;
+        }
+
+        const canvas = document.querySelector("#q" + i + " canvas");
+        const img = canvas.toDataURL("image/png");
+
+        const col = label % 2;
+        const row = Math.floor(label / 2);
+
+        const x = startX + col * colGap;
+        const y = startY + row * rowGap;
+
+        pdf.addImage(img, "PNG", x, y, qrSize, qrSize);
+
+        pdf.setFont("helvetica", "normal");
+        pdf.setFontSize(8);
+        pdf.text(rows[i].text, x, y + qrSize + 4);
+
+        label++;
+    }
+
+    pdf.save("Warehouse_QR_Labels.pdf");
 }
 </script></body></html>
