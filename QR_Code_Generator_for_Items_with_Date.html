@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QR Code Generator for Items with Date</title>
+<style>
+body{font-family:Arial,sans-serif;background:#f2f4f8;display:flex;justify-content:center;align-items:center;height:100vh;margin:0}
+.container{background:#fff;padding:25px;border-radius:14px;box-shadow:0 10px 25px rgba(0,0,0,.08);width:90%;max-width:400px;text-align:center}
+input,button{width:100%;padding:12px;margin-top:15px;font-size:16px;border-radius:8px;box-sizing:border-box}
+input{border:1px solid #ccc}
+button{border:none;background:#2563eb;color:#fff;cursor:pointer}
+button:hover{background:#1e4fd8}
+#errorMsg{color:red;margin-top:10px}
+#qrcode{margin-top:20px}
+</style>
+</head>
+<body>
+<div class="container">
+<h2>QR Code Generator for Items with Date</h2>
+
+<input type="number" id="numberInput" placeholder="Enter Number (e.g. 1047)" oninput="updateQRText();generateQR()">
+<input type="text" id="qrText" placeholder="Generated text appears here" oninput="generateQR()">
+
+<button onclick="generateQR()">Generate QR</button>
+<button onclick="downloadQR()">Download QR</button>
+
+<div id="errorMsg"></div>
+<div id="qrcode"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+<script>
+let currentCanvas=null;
+
+function updateQRText(){
+ const n=document.getElementById("numberInput").value.trim();
+ const out=document.getElementById("qrText");
+ if(!n){out.value="";return;}
+ const d=new Date();
+ const dd=String(d.getDate()).padStart(2,"0");
+ const mm=String(d.getMonth()+1).padStart(2,"0");
+ const yyyy=d.getFullYear();
+ out.value=`b_${n}_${dd}-${mm}-${yyyy}`;
+}
+
+function generateQR(){
+ const txt=document.getElementById("qrText").value.trim();
+ document.getElementById("errorMsg").innerText="";
+ document.getElementById("qrcode").innerHTML="";
+ if(!txt){
+   document.getElementById("errorMsg").innerText="Please enter a number first.";
+   return;
+ }
+ new QRCode(document.getElementById("qrcode"),{
+   text:txt,width:220,height:220
+ });
+ setTimeout(()=>{currentCanvas=document.querySelector("#qrcode canvas");},100);
+}
+
+function downloadQR(){
+ if(!currentCanvas){alert("Please generate a QR code first.");return;}
+ const a=document.createElement("a");
+ a.download=document.getElementById("qrText").value.trim()+".png";
+ a.href=currentCanvas.toDataURL("image/png");
+ a.click();
+}
+</script>
+</body>
+</html>
