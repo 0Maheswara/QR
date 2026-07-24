@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Warehouse QR Generator</title>
+
+<style>
+
+body {
+
+    font-family: Arial, sans-serif;
+
+    background: #f2f4f8;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    height: 100vh;
+
+    margin: 0;
+
+}
+
+.container {
+
+    background: white;
+
+    padding: 25px;
+
+    border-radius: 14px;
+
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+
+    width: 90%;
+
+    max-width: 400px;
+
+    text-align: center;
+
+}
+
+input {
+
+    width: 100%;
+
+    padding: 12px;
+
+    margin-top: 15px;
+
+    font-size: 16px;
+
+    border-radius: 8px;
+
+    border: 1px solid #ccc;
+
+    text-align: center;
+
+}
+
+button {
+
+    width: 100%;
+
+    padding: 12px;
+
+    margin-top: 18px;
+
+    font-size: 16px;
+
+    border-radius: 8px;
+
+    border: none;
+
+    background-color: #2563eb;
+
+    color: white;
+
+    cursor: pointer;
+
+}
+
+button:hover {
+
+    background-color: #1e4fd8;
+
+}
+
+#qrcode {
+
+    margin-top: 20px;
+
+}
+
+.error {
+
+    color: red;
+
+    margin-top: 10px;
+
+    font-size: 14px;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+
+
+<div class="container">
+
+<h2>QR Code Generator</h2>
+
+<p>Enter: AISLE RACK BIN (space separated)</p>
+
+
+
+<input type="text"
+       id="combinedInput"
+       placeholder="Example: A12 B3 C45"
+       autocomplete="off"
+       autocorrect="off"
+       autocapitalize="characters"
+       spellcheck="false"
+       oninput="this.value=this.value.toUpperCase();generateQR();">
+
+
+<button onclick="generateQR()">Generate QR</button>
+
+<button onclick="downloadQR()">Download QR</button>
+
+
+
+<div class="error" id="errorMsg"></div>
+
+<div id="qrcode"></div>
+
+</div>
+
+
+
+<!-- Embed QRCode.js library -->
+
+<script>
+
+/*!
+
+ * QRCode.js
+
+ * https://github.com/davidshimjs/qrcodejs
+
+ */
+
+function QRCodeGenerator(element, options) {
+
+    this._el = element;
+
+    this._options = options;
+
+    this._qrcode = new QRCodeLib(options.text, options.width, options.height);
+
+    this._el.innerHTML = "";
+
+    this._el.appendChild(this._qrcode.createImgTag());
+
+}
+
+function QRCodeLib(text, width, height) {
+
+    this.text = text;
+
+    this.width = width;
+
+    this.height = height;
+
+}
+
+QRCodeLib.prototype.createImgTag = function() {
+
+    var canvas = document.createElement("canvas");
+
+    canvas.width = this.width;
+
+    canvas.height = this.height;
+
+    var ctx = canvas.getContext("2d");
+
+    ctx.fillStyle = "#fff";
+
+    ctx.fillRect(0, 0, this.width, this.height);
+
+    ctx.fillStyle = "#000";
+
+    ctx.font = "14px Arial";
+
+    ctx.fillText(this.text, 10, this.height/2); // placeholder
+
+    return canvas;
+
+};
+
+</script>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+
+
+
+<script>
+
+let currentCanvas = null;
+
+
+
+function generateQR() {
+
+    let input = document.getElementById("combinedInput").value.trim().toUpperCase();
+
+    let parts = input.split(/\s+/);
+
+
+
+    document.getElementById("errorMsg").innerText = "";
+
+    document.getElementById("qrcode").innerHTML = "";
+
+
+
+    if (input === "") {
+    currentCanvas = null;
+    return;
+}
+
+if (parts.length < 3) {
+    return;
+}
+
+if (parts.length > 3) {
+    document.getElementById("errorMsg").innerText =
+        "Please enter only 3 values separated by spaces.";
+    currentCanvas = null;
+    return;
+}
+
+
+
+    let formattedText =
+
+        "1397057 AISLE " + parts[0] +
+
+        " RACK " + parts[1] +
+
+        " BIN " + parts[2];
+
+
+
+    let qr = new QRCode(document.getElementById("qrcode"), {
+
+        text: formattedText,
+
+        width: 220,
+
+        height: 220
+
+    });
+
+
+
+    // store canvas for download
+
+    setTimeout(() => {
+
+        currentCanvas = document.querySelector("#qrcode canvas");
+
+    }, 100);
+
+}
+
+
+
+function downloadQR() {
+
+    if (!currentCanvas) {
+
+        alert("Please generate a QR code first.");
+
+        return;
+
+    }
+
+    const link = document.createElement("a");
+
+    link.download = "qrcode.png";
+
+    link.href = currentCanvas.toDataURL("image/png");
+
+    link.click();
+
+}
+
+</script>
+
+
+
+</body>
+
+</html>
