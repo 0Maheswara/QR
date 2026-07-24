@@ -220,6 +220,8 @@ async function downloadPDF() {
         alert("Generate first");
         return;
     }
+    // Wait for QR canvases to finish rendering
+    await new Promise(resolve => setTimeout(resolve, 300));
 
     const { jsPDF } = window.jspdf;
 
