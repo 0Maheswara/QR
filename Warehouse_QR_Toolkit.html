@@ -808,6 +808,204 @@ function updateBulk(index,value){
 
 }
 
+
+/* ==========================================================
+   BULK QR DOWNLOADS
+========================================================== */
+
+async function downloadZipBulk(){
+
+    if(!bulkRows.length){
+
+        alert("Generate Preview first.");
+
+        return;
+
+    }
+
+    const zip = new JSZip();
+
+    for(let i=0;i<bulkRows.length;i++){
+
+        const canvas =
+
+            document.querySelector(
+                "#bulkQR"+i+" canvas"
+            );
+
+        zip.file(
+
+            bulkRows[i].text + ".png",
+
+            canvas
+                .toDataURL("image/png")
+                .split(",")[1],
+
+            {
+
+                base64:true
+
+            }
+
+        );
+
+    }
+
+    const blob =
+
+        await zip.generateAsync({
+
+            type:"blob"
+
+        });
+
+    const a =
+
+        document.createElement("a");
+
+    a.href =
+
+        URL.createObjectURL(blob);
+
+    a.download =
+
+        "Warehouse_QRs.zip";
+
+    a.click();
+
+}
+
+async function downloadPDFBulk(){
+
+    if(!bulkRows.length){
+
+        alert("Generate Preview first.");
+
+        return;
+
+    }
+
+    await new Promise(resolve=>setTimeout(resolve,300));
+
+    const { jsPDF } = window.jspdf;
+
+    const pdf =
+
+        new jsPDF(
+
+            "p",
+
+            "mm",
+
+            "a4"
+
+        );
+
+    const cols = 4;
+
+    const rowsPerPage = 8;
+
+    const labelsPerPage =
+
+        cols * rowsPerPage;
+
+    const qrSize = 22;
+
+    const startX = 8;
+
+    const startY = 8;
+
+    const colGap = 48;
+
+    const rowGap = 35;
+
+    let label = 0;
+
+    for(let i=0;i<bulkRows.length;i++){
+
+        if(label===labelsPerPage){
+
+            pdf.addPage();
+
+            label = 0;
+
+        }
+
+        const canvas =
+
+            document.querySelector(
+                "#bulkQR"+i+" canvas"
+            );
+
+        const img =
+
+            canvas.toDataURL("image/png");
+
+        const col =
+
+            label % cols;
+
+        const row =
+
+            Math.floor(label/cols);
+
+        const x =
+
+            startX + col*colGap;
+
+        const y =
+
+            startY + row*rowGap;
+
+        pdf.addImage(
+
+            img,
+
+            "PNG",
+
+            x,
+
+            y,
+
+            qrSize,
+
+            qrSize
+
+        );
+
+        pdf.setFont(
+
+            "helvetica",
+
+            "normal"
+
+        );
+
+        pdf.setFontSize(8);
+
+        pdf.text(
+
+            bulkRows[i].text,
+
+            x,
+
+            y + qrSize + 4
+
+        );
+
+        label++;
+
+    }
+
+    pdf.save(
+
+        "Warehouse_QR_Labels.pdf"
+
+    );
+
+}
+
+
 </script>
 </body>
 </html>
