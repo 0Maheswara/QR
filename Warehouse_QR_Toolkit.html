@@ -218,7 +218,33 @@ canvas{
 
 <div class="panel" id="itemPanel">
 
-<!-- PART 3 GOES HERE -->
+<h2>General QR</h2>
+
+<p>Type anything below. QR updates instantly.</p>
+
+<input
+    type="text"
+    id="combinedInputGeneral"
+    placeholder="Type anything..."
+    autocomplete="off"
+    autocorrect="off"
+    spellcheck="false"
+    oninput="generateGeneralQR();">
+
+<button onclick="generateGeneralQR()">
+    Generate QR
+</button>
+
+<button onclick="downloadGeneralQR()">
+    Download QR
+</button>
+
+<div
+    class="error"
+    id="errorMsgGeneral">
+</div>
+
+<div id="qrcodeGeneral"></div>
 
 </div>
 
@@ -348,3 +374,82 @@ function downloadBinQR(){
 }
 
 
+/* ==========================================================
+   GENERAL QR
+========================================================== */
+
+let currentCanvasGeneral = null;
+
+function generateGeneralQR(){
+
+    const input =
+        document
+        .getElementById("combinedInputGeneral")
+        .value;
+
+    document
+        .getElementById("errorMsgGeneral")
+        .innerText = "";
+
+    document
+        .getElementById("qrcodeGeneral")
+        .innerHTML = "";
+
+    if(input.trim()===""){
+
+        currentCanvasGeneral = null;
+
+        return;
+
+    }
+
+    new QRCode(
+
+        document.getElementById("qrcodeGeneral"),
+
+        {
+
+            text:input,
+
+            width:220,
+
+            height:220
+
+        }
+
+    );
+
+    setTimeout(function(){
+
+        currentCanvasGeneral =
+
+        document.querySelector(
+            "#qrcodeGeneral canvas"
+        );
+
+    },100);
+
+}
+
+function downloadGeneralQR(){
+
+    if(!currentCanvasGeneral){
+
+        alert("Please generate a QR code first.");
+
+        return;
+
+    }
+
+    const a =
+        document.createElement("a");
+
+    a.download = "General_QR.png";
+
+    a.href =
+
+    currentCanvasGeneral.toDataURL("image/png");
+
+    a.click();
+
+}
