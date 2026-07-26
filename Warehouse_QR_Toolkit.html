@@ -292,7 +292,28 @@ canvas{
 
 <div class="panel" id="bulkPanel">
 
-<!-- PART 4 GOES HERE -->
+<h2>Bulk QR</h2>
+
+<p>Paste one number per line.</p>
+
+<textarea
+    id="numsBulk"
+    rows="8"
+    placeholder="One number per line"></textarea>
+
+<button onclick="buildBulk()">
+    Generate Preview
+</button>
+
+<button onclick="downloadZipBulk()">
+    Download ZIP
+</button>
+
+<button onclick="downloadPDFBulk()">
+    Download PDF
+</button>
+
+<div id="tblBulk"></div>
 
 </div>
 
@@ -634,6 +655,158 @@ function downloadItemQR(){
     a.click();
 
 }    
+
+/* ==========================================================
+   BULK QR
+========================================================== */
+
+let bulkRows = [];
+
+function todayBulk(){
+
+    let d = new Date();
+
+    return String(d.getDate()).padStart(2,"0")
+        + "-"
+        + String(d.getMonth()+1).padStart(2,"0")
+        + "-"
+        + d.getFullYear();
+
+}
+
+function buildBulk(){
+
+    bulkRows = [];
+
+    let html = `
+
+        <table>
+
+            <tr>
+
+                <th>#</th>
+
+                <th>Number</th>
+
+                <th>Edit QR Text</th>
+
+                <th>QR</th>
+
+            </tr>
+
+    `;
+
+    document.getElementById("tblBulk").innerHTML = "";
+
+    let arr =
+
+        document
+
+        .getElementById("numsBulk")
+
+        .value
+
+        .split(/\n/)
+
+        .map(x=>x.trim())
+
+        .filter(Boolean)
+
+        .slice(0,100);
+
+    arr.forEach(function(number,index){
+
+        let text =
+
+            "b_"
+
+            + number
+
+            + "_"
+
+            + todayBulk();
+
+        html += `
+
+            <tr>
+
+                <td>${index+1}</td>
+
+                <td>${number}</td>
+
+                <td>
+
+                    <input
+
+                        type="text"
+
+                        value="${text}"
+
+                        oninput="updateBulk(${index},this.value)">
+
+                </td>
+
+                <td>
+
+                    <div id="bulkQR${index}"></div>
+
+                </td>
+
+            </tr>
+
+        `;
+
+        bulkRows.push({
+
+            text:text
+
+        });
+
+    });
+
+    html += "</table>";
+
+    document.getElementById("tblBulk").innerHTML = html;
+
+    bulkRows.forEach(function(row,index){
+
+        drawBulk(index,row.text);
+
+    });
+
+}
+
+function drawBulk(index,text){
+
+    let div =
+
+        document.getElementById(
+
+            "bulkQR"+index
+
+        );
+
+    div.innerHTML = "";
+
+    new QRCode(div,{
+
+        text:text,
+
+        width:100,
+
+        height:100
+
+    });
+
+}
+
+function updateBulk(index,value){
+
+    bulkRows[index].text = value;
+
+    drawBulk(index,value);
+
+}
 
 </script>
 </body>
