@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Warehouse QR Toolkit</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+
+    font-family:Arial,sans-serif;
+
+    background:#f2f4f8;
+
+    padding:20px;
+
+}
+
+.grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(2,1fr);
+
+    gap:20px;
+
+}
+
+.panel{
+
+    background:white;
+
+    border-radius:12px;
+
+    padding:20px;
+
+    box-shadow:0 5px 15px rgba(0,0,0,.08);
+
+}
+
+@media(max-width:900px){
+
+.grid{
+
+grid-template-columns:1fr;
+
+}
+
+}
+
+input,
+textarea,
+button{
+
+    width:100%;
+
+    padding:12px;
+
+    margin-top:12px;
+
+    font-size:16px;
+
+    border-radius:8px;
+
+    box-sizing:border-box;
+
+}
+
+input,
+textarea{
+
+    border:1px solid #ccc;
+
+}
+
+button{
+
+    border:none;
+
+    background:#2563eb;
+
+    color:white;
+
+    cursor:pointer;
+
+}
+
+button:hover{
+
+    background:#1e4fd8;
+
+}
+
+.row{
+
+    display:flex;
+
+    gap:10px;
+
+    margin-top:12px;
+
+}
+
+.row input{
+
+    margin-top:0;
+
+}
+
+table{
+
+    width:100%;
+
+    margin-top:15px;
+
+    border-collapse:collapse;
+
+}
+
+table th,
+table td{
+
+    border:1px solid #ccc;
+
+    padding:6px;
+
+    text-align:center;
+
+}
+
+canvas{
+
+    max-width:100%;
+
+}
+
+.error{
+
+    color:red;
+
+    margin-top:10px;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="grid">
+
+<!-- ========================================================= -->
+<!-- BIN LABEL QR -->
+<!-- ========================================================= -->
+
+<div class="panel" id="binPanel">
+
+<h2>Bin Label QR</h2>
+
+<p>Enter: AISLE RACK BIN (space separated)</p>
+
+<input
+    type="text"
+    id="combinedInputBin"
+    placeholder="Example: A12 B3 C45"
+    autocomplete="off"
+    autocorrect="off"
+    autocapitalize="characters"
+    spellcheck="false"
+    oninput="this.value=this.value.toUpperCase();generateBinQR();">
+
+<button onclick="generateBinQR()">
+    Generate QR
+</button>
+
+<button onclick="downloadBinQR()">
+    Download QR
+</button>
+
+<div
+    class="error"
+    id="errorMsgBin">
+</div>
+
+<div id="qrcodeBin"></div>
+
+</div>
+
+
+
+<!-- ========================================================= -->
+<!-- GENERAL QR -->
+<!-- ========================================================= -->
+
+<div class="panel" id="generalPanel">
+
+<!-- PART 3 GOES HERE -->
+
+</div>
+
+
+
+<!-- ========================================================= -->
+<!-- ITEM QR -->
+<!-- ========================================================= -->
+
+<div class="panel" id="itemPanel">
+
+<!-- PART 3 GOES HERE -->
+
+</div>
+
+
+
+<!-- ========================================================= -->
+<!-- BULK QR -->
+<!-- ========================================================= -->
+
+<div class="panel" id="bulkPanel">
+
+<!-- PART 4 GOES HERE -->
+
+</div>
+
+</div>
+
+<!-- QR Library -->
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+
+<!-- JSZip -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+<!-- jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<!-- BIN LABEL JAVASCRIPT -->
+<script>
+
+let currentCanvasBin = null;
+
+function generateBinQR(){
+
+    let input =
+        document
+        .getElementById("combinedInputBin")
+        .value
+        .trim()
+        .toUpperCase();
+
+    let parts =
+        input.split(/\s+/);
+
+    document.getElementById("errorMsgBin").innerText = "";
+
+    document.getElementById("qrcodeBin").innerHTML = "";
+
+    if(input===""){
+
+        currentCanvasBin = null;
+
+        return;
+
+    }
+
+    if(parts.length<3){
+
+        return;
+
+    }
+
+    if(parts.length>3){
+
+        document.getElementById("errorMsgBin").innerText =
+        "Please enter only 3 values separated by spaces.";
+
+        currentCanvasBin = null;
+
+        return;
+
+    }
+
+    let formattedText =
+
+        "1397057 AISLE " + parts[0] +
+
+        " RACK " + parts[1] +
+
+        " BIN " + parts[2];
+
+    new QRCode(
+
+        document.getElementById("qrcodeBin"),
+
+        {
+
+            text:formattedText,
+
+            width:220,
+
+            height:220
+
+        }
+
+    );
+
+    setTimeout(function(){
+
+        currentCanvasBin =
+
+        document.querySelector("#qrcodeBin canvas");
+
+    },100);
+
+}
+
+function downloadBinQR(){
+
+    if(!currentCanvasBin){
+
+        alert("Please generate a QR code first.");
+
+        return;
+
+    }
+
+    const a = document.createElement("a");
+
+    a.download = "Bin_Label_QR.png";
+
+    a.href =
+
+    currentCanvasBin.toDataURL("image/png");
+
+    a.click();
+
+}
+
+</script>
