@@ -206,18 +206,6 @@ canvas{
 
 <div class="panel" id="generalPanel">
 
-<!-- PART 3 GOES HERE -->
-
-</div>
-
-
-
-<!-- ========================================================= -->
-<!-- ITEM QR -->
-<!-- ========================================================= -->
-
-<div class="panel" id="itemPanel">
-
 <h2>General QR</h2>
 
 <p>Type anything below. QR updates instantly.</p>
@@ -245,6 +233,54 @@ canvas{
 </div>
 
 <div id="qrcodeGeneral"></div>
+
+</div>
+
+
+
+<!-- ========================================================= -->
+<!-- ITEM QR -->
+<!-- ========================================================= -->
+
+<div class="panel" id="itemPanel">
+
+<h2>Item QR</h2>
+
+<input
+    type="number"
+    id="numberInputItem"
+    placeholder="Enter Number (e.g. 1047)"
+    oninput="updateItemQRText();generateItemQR();">
+
+<div class="row">
+
+    <input
+        type="text"
+        id="qrTextItem"
+        placeholder="Generated text appears here"
+        oninput="generateItemQR()">
+
+    <input
+        type="date"
+        id="dateInputItem"
+        onchange="updateItemQRText();generateItemQR();">
+
+</div>
+
+<button onclick="generateItemQR()">
+    Generate QR
+</button>
+
+<button onclick="downloadItemQR()">
+    Download QR
+</button>
+
+<div
+    class="error"
+    id="errorMsgItem">
+</div>
+
+<div id="qrcodeItem"></div>
 
 </div>
 
@@ -453,3 +489,152 @@ function downloadGeneralQR(){
     a.click();
 
 }
+
+/* ==========================================================
+   ITEM QR
+========================================================== */
+
+let currentCanvasItem = null;
+
+// Initialize today's date
+window.addEventListener("load", function(){
+
+    const today = new Date();
+
+    document.getElementById("dateInputItem").value =
+        today.toISOString().split("T")[0];
+
+    updateItemQRText();
+
+    generateItemQR();
+
+});
+
+function updateItemQRText(){
+
+    const number =
+        document.getElementById("numberInputItem")
+        .value
+        .trim();
+
+    const output =
+        document.getElementById("qrTextItem");
+
+    if(number===""){
+
+        output.value="";
+
+        return;
+
+    }
+
+    let selectedDate =
+        document.getElementById("dateInputItem").value;
+
+    let date =
+        selectedDate ?
+        new Date(selectedDate) :
+        new Date();
+
+    const dd =
+        String(date.getDate()).padStart(2,"0");
+
+    const mm =
+        String(date.getMonth()+1).padStart(2,"0");
+
+    const yyyy =
+        date.getFullYear();
+
+    output.value =
+        "b_" +
+        number +
+        "_" +
+        dd +
+        "-" +
+        mm +
+        "-" +
+        yyyy;
+
+}
+
+function generateItemQR(){
+
+    const txt =
+        document.getElementById("qrTextItem")
+        .value
+        .trim();
+
+    document.getElementById("errorMsgItem")
+        .innerText = "";
+
+    document.getElementById("qrcodeItem")
+        .innerHTML = "";
+
+    if(txt===""){
+
+        document.getElementById("errorMsgItem")
+            .innerText =
+            "Please enter a number first.";
+
+        currentCanvasItem = null;
+
+        return;
+
+    }
+
+    new QRCode(
+
+        document.getElementById("qrcodeItem"),
+
+        {
+
+            text:txt,
+
+            width:220,
+
+            height:220
+
+        }
+
+    );
+
+    setTimeout(function(){
+
+        currentCanvasItem =
+            document.querySelector(
+                "#qrcodeItem canvas"
+            );
+
+    },100);
+
+}
+
+function downloadItemQR(){
+
+    if(!currentCanvasItem){
+
+        alert("Please generate a QR Code first.");
+
+        return;
+
+    }
+
+    const a =
+        document.createElement("a");
+
+    a.download =
+        document.getElementById("qrTextItem")
+        .value
+        .trim() +
+        ".png";
+
+    a.href =
+        currentCanvasItem.toDataURL("image/png");
+
+    a.click();
+
+}    
+
+</script>
+</body>
+</html>
